@@ -68,7 +68,7 @@ def fetch_digest(selected_categories):
 
                 pub_date = None
                 if hasattr(entry, 'published_parsed') and entry.published_parsed is not None:
-                    pub_date = datetime.fromtimestamp(time.mktime(entry.published_parsed))
+                    pub_date = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
 
                 if pub_date is not None and pub_date >= cutoff_date:
                     entries.append({
