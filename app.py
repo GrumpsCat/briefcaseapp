@@ -35,7 +35,7 @@ cutoff_date = datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)
 # === APP CONFIG ===
 st.set_page_config(page_title="📚 Briefcase", layout="centered")
 
-st.title("\ud83d\udcda Briefcase: Academic Journal Digest")
+st.title("📚 Briefcase: Academic Journal Digest")
 
 selected_categories = st.multiselect(
     "Select categories to fetch:",
