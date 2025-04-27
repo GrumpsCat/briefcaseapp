@@ -65,15 +65,21 @@ def fetch_digest(selected_categories):
                 title = entry.get("title", "Untitled")
                 link = entry.get("link", "")
                 summary = entry.get("summary", "")
-                pub_date = datetime.fromtimestamp(time.mktime(entry.published_parsed)) if hasattr(entry, 'published_parsed') else None
-                if pub_date and pub_date >= cutoff_date:
+
+                pub_date = None
+                if hasattr(entry, 'published_parsed') and entry.published_parsed is not None:
+                    pub_date = datetime.fromtimestamp(time.mktime(entry.published_parsed))
+
+                if pub_date is not None and pub_date >= cutoff_date:
                     entries.append({
                         "title": title,
                         "link": link,
                         "summary": summary,
                     })
+
             if entries:
                 feed_results.append((journal_name, entries))
+
     return feed_results
 
 # === MAIN ===
@@ -82,11 +88,11 @@ with st.spinner('Fetching journal entries...'):
     feed_results = fetch_digest(selected_categories)
 
 # Building Markdown output for optional download
-digest_md = f"# \ud83d\udcda Briefcase\n\n\ud83d\uddd3\ufe0f {datetime.today().strftime('%A, %B %d, %Y')}\n\n---\n"
+digest_md = f"# 📚 Briefcase\n\n🗓️ {datetime.today().strftime('%A, %B %d, %Y')}\n\n---\n"
 
 for journal, articles in feed_results:
-    st.header(f"\ud83d\udcd8\ufe0f {journal}")
-    digest_md += f"## \ud83d\udcd8\ufe0f {journal}\n"
+    st.header(f"📘 {journal}")
+    digest_md += f"## 📘 {journal}\n"
     for article in articles:
         if search_query.lower() in article["title"].lower() or search_query.lower() in article["summary"].lower():
             with st.expander(article["title"]):
@@ -98,7 +104,7 @@ for journal, articles in feed_results:
 
 # === DOWNLOAD BUTTON ===
 st.download_button(
-    label="\ud83d\udd16 Download Digest as Markdown",
+    label="🔗 Download Digest as Markdown",
     data=digest_md,
     file_name=f"briefcase_{datetime.today().strftime('%Y-%m-%d')}.md",
     mime="text/markdown"
