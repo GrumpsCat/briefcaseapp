@@ -43,7 +43,7 @@ selected_categories = st.multiselect(
     default=list(FEEDS.keys())
 )
 
-search_query = st.text_input("\ud83d\udd0d Search articles (optional):")
+search_query = st.text_input("🔍 Search articles (optional):")
 
 def basic_summary(text, limit=300):
     clean = ' '.join(text.strip().split())
