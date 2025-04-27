@@ -33,7 +33,7 @@ DAYS_BACK = 14
 cutoff_date = datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)
 
 # === APP CONFIG ===
-st.set_page_config(page_title="\ud83d\udcda Briefcase", layout="centered")
+st.set_page_config(page_title="📚 Briefcase", layout="centered")
 
 st.title("\ud83d\udcda Briefcase: Academic Journal Digest")
 
