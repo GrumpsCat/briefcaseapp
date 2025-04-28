@@ -18,7 +18,7 @@ FEEDS = {
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=mnsc",
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=opre",
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=msom",
-        "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=isre",
+        "https://pubsonlinelibrary.wiley.com/feed/10970266/most-recent",
     ],
     "Higher Education": [
         "https://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=uhej20",
@@ -28,9 +28,6 @@ FEEDS = {
         "https://www.higheredjobs.com/rss/articleFeed.cfm",
     ],
 }
-
-DAYS_BACK = 14
-cutoff_date = datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)
 
 # === APP CONFIG ===
 st.set_page_config(page_title="📚 Briefcase", layout="centered")
@@ -66,16 +63,11 @@ def fetch_digest(selected_categories):
                 link = entry.get("link", "")
                 summary = entry.get("summary", "")
 
-                pub_date = None
-                if hasattr(entry, 'published_parsed') and entry.published_parsed is not None:
-                    pub_date = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
-
-                if pub_date is not None and pub_date >= cutoff_date:
-                    entries.append({
-                        "title": title,
-                        "link": link,
-                        "summary": summary,
-                    })
+                entries.append({
+                    "title": title,
+                    "link": link,
+                    "summary": summary,
+                })
 
             if entries:
                 feed_results.append((journal_name, entries))
@@ -106,6 +98,4 @@ for journal, articles in feed_results:
 st.download_button(
     label="🔗 Download Digest as Markdown",
     data=digest_md,
-    file_name=f"briefcase_{datetime.today().strftime('%Y-%m-%d')}.md",
-    mime="text/markdown"
-)
+    file_name=f"briefcase_{datetime.toda
