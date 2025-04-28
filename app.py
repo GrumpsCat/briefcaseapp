@@ -18,7 +18,7 @@ FEEDS = {
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=mnsc",
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=opre",
         "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=msom",
-        "https://pubsonlinelibrary.wiley.com/feed/10970266/most-recent",
+        "https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=isre",
     ],
     "Higher Education": [
         "https://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=uhej20",
@@ -98,4 +98,6 @@ for journal, articles in feed_results:
 st.download_button(
     label="🔗 Download Digest as Markdown",
     data=digest_md,
-    file_name=f"briefcase_{datetime.toda
+    file_name=f"briefcase_{datetime.today().strftime('%Y-%m-%d')}.md",
+    mime="text/markdown"
+)
