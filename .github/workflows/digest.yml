@@ -1,34 +1,36 @@
-name: Generate and Deploy Digest
+name: Auto Update
 
 on:
-  schedule:
-    - cron: '0 6,12,18,22 * * *'  # 4 times daily in UTC
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
+permissions:
+  contents: write  # 🔑 Allow push access using GITHUB_TOKEN
+
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
         with:
-          python-version: '3.10'
+          persist-credentials: true  # enables use of GITHUB_TOKEN
 
-      - name: Install dependencies
+      - name: Set up Git user
         run: |
-          python -m pip install --upgrade pip
-          pip install feedparser markdown
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
-      - name: Run Briefcase Script
+      - name: Make auto changes
         run: |
-          python briefcaseapp.py  # Change this if your script has a different name
+          echo "Auto update: $(date)" > auto_update.txt
+          # Add your actual update logic here
 
-      - name: Commit and Push Changes
+      - name: Commit and push
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
           git add .
-          git commit -m "Auto update: ${{ github.run_id }}" || echo "No changes to commit"
+          git commit -m "Auto update: $(date +'%s')" || echo "No changes to commit"
           git push
