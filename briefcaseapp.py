@@ -8,10 +8,10 @@ import markdown as md
 from datetime import datetime, timedelta, timezone
 import pytz
 
-# Set to your local timezone, e.g., 'America/Los_Angeles'
+# === TIMEZONE SETUP ===
 local_tz = pytz.timezone('America/Los_Angeles')
 now = datetime.now(local_tz)
-
+cutoff_date = datetime.now(timezone.utc) - timedelta(days=14)
 
 # === CONFIG ===
 FEEDS = {
@@ -37,10 +37,7 @@ FEEDS = {
     ]
 }
 
-DAYS_BACK = 14
-cutoff_date = datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)
-
-# === Utilities ===
+# === UTILITIES ===
 
 def parse_feed(url):
     return feedparser.parse(url)
@@ -62,8 +59,8 @@ def basic_summary(text, limit=300):
     else:
         return ' '.join(clean[:limit].split(' ')[:-1]) + "..."
 
-def get_edition_label(now):
-    hour = now.hour
+def get_edition_label(current_time):
+    hour = current_time.hour
     if 5 <= hour < 12:
         return "Morning Edition"
     elif 12 <= hour < 17:
@@ -73,9 +70,9 @@ def get_edition_label(now):
     else:
         return "Late Evening Edition"
 
-def build_digest_output_by_journal(feed_results):
-    today = datetime.today().strftime("%A, %B %d, %Y")
-    edition_label = get_edition_label()
+def build_digest_output_by_journal(feed_results, current_time):
+    edition_label = get_edition_label(current_time)
+    today = current_time.strftime("%A, %B %d, %Y")
     edition_line = f"{edition_label} of {today}"
 
     lines = [f"# 📚 BriefCase: The Academic Journal Aggregator\n\n📅 {edition_line}\n\n---\n"]
@@ -93,7 +90,7 @@ def build_digest_output_by_journal(feed_results):
             summary = basic_summary(article.get("summary", ""))
             link = article.get("link", "#")
 
-            line = f"- **[{title}]({link})**  "
+            line = f"- **[{title}]({link})**"
 
             if "Volume" in summary or "Issue" in summary or "Page" in summary:
                 lines.append(f"{line}\n  {summary}")
@@ -131,6 +128,8 @@ def write_html_output(markdown_text, output_file="index.html"):
 
 # === MAIN EXECUTION ===
 
+print("🕒 Now:", now.isoformat())
+
 feed_results = []
 
 for category, urls in FEEDS.items():
@@ -141,8 +140,7 @@ for category, urls in FEEDS.items():
         feed_results.append((journal_name, entries))
 
 # Build and write the latest edition as index.html
-markdown = build_digest_output_by_journal(feed_results)
-write_html_output(markdown, "index.html")
+markdown_text = build_digest_output_by_journal(feed_results, now)
+write_html_output(markdown_text, "index.html")
 
 print("✅ Updated: index.html (latest edition only)")
-
