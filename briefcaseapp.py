@@ -6,6 +6,12 @@ import time
 import textwrap
 import markdown as md
 from datetime import datetime, timedelta, timezone
+import pytz
+
+# Set to your local timezone, e.g., 'America/Los_Angeles'
+local_tz = pytz.timezone('America/Los_Angeles')
+now = datetime.now(local_tz)
+
 
 # === CONFIG ===
 FEEDS = {
