@@ -2,54 +2,43 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '0 * * * *'  # ⏰ Run every hour
-  workflow_dispatch:       # 🚀 Allow manual trigger
-  push:
-    branches:
-      - main               # 🔁 Also trigger on push to main
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:      # Allow manual run
 
 permissions:
-  contents: write          # ✅ Allow committing back to the repo
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ✅ Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: 🛠 Set up Git identity
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up Git user
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🐍 Check Python and file presence
-        run: |
-          python3 --version
-          ls -lh
-          test -f briefcaseapp.py && echo "✅ Found briefcaseapp.py" || (echo "❌ briefcaseapp.py not found" && exit 1)
-
-      - name: 🚀 Run CompactPaper script
+      - name: Run CompactPaper script
         run: |
           echo "▶ Starting briefcaseapp.py..."
-          python3 briefcaseapp.py
+          python briefcaseapp.py
 
-      - name: 🔎 Preview output
-        run: |
-          echo "Top of index.html:"
-          head -n 10 index.html || echo "⚠️ index.html missing or empty"
+      - name: Append timestamp
+        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
 
-      - name: 🕒 Write timestamp file
-        run: |
-          echo "Auto update: $(date)" >> auto_update.txt
-          cat auto_update.txt
-
-      - name: 📤 Commit and push if changes exist
+      - name: Commit and push
         run: |
           git add .
-          if git diff --cached --quiet; then
-            echo "🟡 No changes to commit"
-          else
-            git commit -m "Auto update: $(date)"
-            git push
+          git commit -m "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
