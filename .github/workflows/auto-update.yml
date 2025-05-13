@@ -1,64 +1,55 @@
 name: Auto Update
 
 on:
-  push:                      # Trigger on commits to main
-    branches:
-      - main
   schedule:
-    - cron: '0 * * * *'      # Trigger every hour
-  workflow_dispatch:         # Allow manual trigger from GitHub UI
+    - cron: '0 * * * *'  # ⏰ Run every hour
+  workflow_dispatch:       # 🚀 Allow manual trigger
+  push:
+    branches:
+      - main               # 🔁 Also trigger on push to main
 
 permissions:
-  contents: write  # Required for committing/pushing with GITHUB_TOKEN
+  contents: write          # ✅ Allow committing back to the repo
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ✅ Checkout repo
+      - name: ✅ Checkout repository
         uses: actions/checkout@v3
-        with:
-          persist-credentials: true
 
-      - name: 🛠 Set up Git user
+      - name: 🛠 Set up Git identity
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🔍 Confirm Python script exists
+      - name: 🐍 Check Python and file presence
         run: |
-          echo "Listing repo contents..."
+          python3 --version
           ls -lh
-          echo "---"
-          test -f briefcaseapp.py && echo "✅ briefcaseapp.py found" || echo "❌ briefcaseapp.py missing"
+          test -f briefcaseapp.py && echo "✅ Found briefcaseapp.py" || (echo "❌ briefcaseapp.py not found" && exit 1)
 
       - name: 🚀 Run CompactPaper script
         run: |
-          echo "▶ Running briefcaseapp.py..."
+          echo "▶ Starting briefcaseapp.py..."
           python3 briefcaseapp.py
-          echo "✅ Script completed."
 
-      - name: 🔎 Preview top of generated HTML
+      - name: 🔎 Preview output
         run: |
           echo "Top of index.html:"
-          head -n 20 index.html || echo "❌ index.html not found"
+          head -n 10 index.html || echo "⚠️ index.html missing or empty"
 
-      - name: 🕒 Append update timestamp
-        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
-
-      - name: 📋 Git status and diff
+      - name: 🕒 Write timestamp file
         run: |
-          echo "🔧 Git changes:"
-          git status
-          git diff || echo "⚠️ No diff to show"
+          echo "Auto update: $(date)" >> auto_update.txt
+          cat auto_update.txt
 
-      - name: 📤 Commit and push
+      - name: 📤 Commit and push if changes exist
         run: |
           git add .
-          if git diff-index --quiet HEAD; then
+          if git diff --cached --quiet; then
             echo "🟡 No changes to commit"
           else
-            git commit -m "Auto update: $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "Auto update: $(date)"
             git push
-          fi
