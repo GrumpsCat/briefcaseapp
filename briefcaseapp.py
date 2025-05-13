@@ -9,6 +9,10 @@ from datetime import datetime, timedelta, timezone
 import pytz
 
 
+print("🚀 Running briefcaseapp.py")
+raise RuntimeError("💥 Test crash: If you see this, the script DID run.")
+
+
 print("🚀 Starting CompactPaper script...")
 
 # === TIMEZONE SETUP ===
