@@ -3,7 +3,7 @@ name: Auto Update
 on:
   schedule:
     - cron: '0 * * * *'  # every hour
-  workflow_dispatch:      # manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -26,16 +26,13 @@ jobs:
       - name: Run CompactPaper script
         run: python briefcaseapp.py
 
-
-      - name: Make auto changes
-        run: |
-          echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
+      - name: Append timestamp
+        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
 
       - name: Show diff
         run: |
           git status
           git diff
-
 
       - name: Commit and push
         run: |
