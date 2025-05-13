@@ -62,8 +62,8 @@ def basic_summary(text, limit=300):
     else:
         return ' '.join(clean[:limit].split(' ')[:-1]) + "..."
 
-def get_edition_label():
-    hour = datetime.now().hour
+def get_edition_label(now):
+    hour = now.hour
     if 5 <= hour < 12:
         return "Morning Edition"
     elif 12 <= hour < 17:
