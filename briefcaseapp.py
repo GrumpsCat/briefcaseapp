@@ -9,9 +9,8 @@ from datetime import datetime, timedelta, timezone
 import pytz
 
 
-print("🚀 Running briefcaseapp.py")
-raise RuntimeError("💥 Test crash: If you see this, the script DID run.")
-
+with open("proof-it-ran.txt", "w") as f:
+    f.write(f"✅ Ran at {datetime.now().isoformat()}\n")
 
 print("🚀 Starting CompactPaper script...")
 
