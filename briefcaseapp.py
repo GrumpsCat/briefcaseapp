@@ -8,7 +8,7 @@ import markdown as md
 from datetime import datetime, timedelta, timezone
 import pytz
 
-
+# === PROOF OF EXECUTION ===
 with open("proof-it-ran.txt", "w") as f:
     f.write(f"✅ Ran at {datetime.now().isoformat()}\n")
 
@@ -80,10 +80,9 @@ def build_digest_output_by_journal(feed_results, current_time):
     edition_label = get_edition_label(current_time)
     today = current_time.strftime("%A, %B %d, %Y")
     edition_line = f"{edition_label} of {today}"
+    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S %Z")
 
-        timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S %Z")
     lines = [f"# 📚 BriefCase: The Academic Journal Aggregator\n\n📅 {edition_line} — *{timestamp}*\n\n---\n"]
-
 
     journal_articles = {}
     for (journal_name, entries) in feed_results:
@@ -152,5 +151,5 @@ markdown_text = build_digest_output_by_journal(feed_results, now)
 write_html_output(markdown_text, "index.html")
 
 print("✅ Updated: index.html (latest edition only)")
-
 print("✅ Finished generating index.html")
+
