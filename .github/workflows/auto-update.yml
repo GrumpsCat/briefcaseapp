@@ -23,8 +23,12 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: Run CompactPaper script
-        run: python briefcaseapp.py
+        - name: Run CompactPaper script
+        run: |
+          echo "▶ Running briefcaseapp.py..."
+          python briefcaseapp.py
+          echo "✅ Script completed."
+
 
       - name: Append timestamp
         run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
