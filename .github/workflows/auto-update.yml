@@ -3,7 +3,7 @@ name: Auto Update
 on:
   schedule:
     - cron: '0 * * * *'  # Every hour
-  workflow_dispatch:      # Allow manual run
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,26 +16,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
       - name: Set up Git user
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+      - name: Install Python dependencies
+        run: pip install feedparser markdown pytz
 
       - name: Run CompactPaper script
         run: |
           echo "▶ Starting briefcaseapp.py..."
           python briefcaseapp.py
 
-      - name: Append timestamp
-        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
+      - name: Make auto changes
+        run: echo "Auto update: $(date)" > auto_update.txt
 
       - name: Commit and push
         run: |
