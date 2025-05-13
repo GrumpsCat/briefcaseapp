@@ -41,4 +41,31 @@
 
 ## 📁 Project Structure
 
+briefcaseapp/
+├── briefcaseapp.py        # Main script to generate the digest
+├── index.html             # Generated output (published via GitHub Pages)
+├── .github/
+│   └── workflows/
+│       └── digest.yml     # GitHub Actions automation
+└── README.md              # This file
+
+---
+
+## 🚀 Automation via GitHub Actions
+
+This project uses [GitHub Actions](https://docs.github.com/en/actions) to run the script on a schedule and push updates:
+
+- **Schedule:** 4 times daily (6:00, 12:00, 18:00, 22:00 UTC)
+- **Manual Trigger:** You can also run it via the “Actions” tab → “Run workflow”
+
+The workflow script is defined in `.github/workflows/digest.yml`.
+
+---
+
+## 🔧 Running Locally
+
+If you'd like to run the script manually:
+
+```bash
+python briefcaseapp.py
 
