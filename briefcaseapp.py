@@ -8,6 +8,9 @@ import markdown as md
 from datetime import datetime, timedelta, timezone
 import pytz
 
+
+print("🚀 Starting CompactPaper script...")
+
 # === TIMEZONE SETUP ===
 local_tz = pytz.timezone('America/Los_Angeles')
 now = datetime.now(local_tz)
@@ -146,3 +149,5 @@ markdown_text = build_digest_output_by_journal(feed_results, now)
 write_html_output(markdown_text, "index.html")
 
 print("✅ Updated: index.html (latest edition only)")
+
+print("✅ Finished generating index.html")
