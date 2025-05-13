@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 import feedparser
-import os
-import textwrap
 from datetime import datetime, timedelta, timezone
 import pytz
+import os
 
 # === TIMEZONE SETUP ===
 local_tz = pytz.timezone('America/Los_Angeles')
@@ -35,7 +34,7 @@ FEEDS = {
     ]
 }
 
-# === UTILITIES ===
+# === HELPERS ===
 
 def parse_feed(url):
     return feedparser.parse(url)
@@ -45,28 +44,18 @@ def get_top_entries(entries, limit=5):
     for entry in entries[:limit]:
         top_articles.append({
             "title": entry.get("title", "No title"),
-            "link": entry.get("link", ""),
-            "summary": entry.get("summary", "").strip()[:300],
+            "link": entry.get("link", "#"),
+            "summary": entry.get("summary", "").strip(),
         })
     return top_articles
 
-def basic_summary(text, limit=300):
-    clean = ' '.join(text.strip().split())
-    if len(clean) <= limit:
-        return clean
-    else:
-        return ' '.join(clean[:limit].split(' ')[:-1]) + "..."
-
-def get_edition_label(current_time):
-    hour = current_time.hour
-    if 5 <= hour < 12:
-        return "Morning Edition"
-    elif 12 <= hour < 17:
-        return "Afternoon Edition"
-    elif 17 <= hour < 21:
-        return "Evening Edition"
-    else:
-        return "Late Evening Edition"
+def extract_citation(summary):
+    """Try to extract a likely citation line from the summary."""
+    lines = summary.split(". ")
+    for line in lines:
+        if any(keyword in line for keyword in ["Volume", "Issue", "Page", "DOI"]):
+            return line.strip()
+    return ""
 
 def build_digest_html(feed_results, current_time):
     edition_label = get_edition_label(current_time)
@@ -83,15 +72,37 @@ def build_digest_html(feed_results, current_time):
         journal_articles[journal_name].extend(entries)
 
     for journal in sorted(journal_articles):
-        html.append(f"<h2>📘 {journal}</h2><ul>")
+        html.append(f"<h2>📘 {journal}</h2>")
         for article in journal_articles[journal]:
-            title = article.get("title", "Untitled").strip()
-            link = article.get("link", "#")
-            summary = basic_summary(article.get("summary", ""))
-            html.append(f"<li><strong><a href=\"{link}\">{title}</a></strong><br><p class=\"summary\">{summary}</p></li>")
-        html.append("</ul><hr>")
+            title = article["title"]
+            link = article["link"]
+            summary = article["summary"]
+
+            citation = extract_citation(summary)
+            clean_summary = summary.replace(citation, "").strip()
+
+            html.append("<div style='margin-bottom: 1.5em;'>")
+            html.append(f"<p><strong><a href='{link}'>{title}</a></strong></p>")
+            if citation:
+                html.append(f"<p><em>{citation}</em></p>")
+            if clean_summary:
+                html.append(f"<p>{clean_summary}</p>")
+            html.append("</div>")
+
+        html.append("<hr>")
 
     return "\n".join(html)
+
+def get_edition_label(current_time):
+    hour = current_time.hour
+    if 5 <= hour < 12:
+        return "Morning Edition"
+    elif 12 <= hour < 17:
+        return "Afternoon Edition"
+    elif 17 <= hour < 21:
+        return "Evening Edition"
+    else:
+        return "Late Evening Edition"
 
 def write_html_output(html_content, output_file="index.html"):
     html_template = f"""<!DOCTYPE html>
@@ -105,9 +116,7 @@ def write_html_output(html_content, output_file="index.html"):
     a {{ color: #0645AD; text-decoration: none; }}
     a:hover {{ text-decoration: underline; }}
     hr {{ margin: 2em 0; }}
-    .summary {{ color: #555; font-style: italic; margin-top: 0.5em; }}
-    ul {{ list-style-type: none; padding-left: 0; }}
-    li {{ margin-bottom: 1.2em; }}
+    .summary {{ color: #555; }}
   </style>
 </head>
 <body>
@@ -119,9 +128,9 @@ def write_html_output(html_content, output_file="index.html"):
 
 # === MAIN EXECUTION ===
 
-print("🕒 Now:", now.isoformat())
+print("🕒 Running at", now.isoformat())
 
-# Create marker file to prove script runs
+# Proof of execution
 with open("proof-it-ran.txt", "w") as f:
     f.write(f"✅ Ran at {now.isoformat()}\n")
 
@@ -134,8 +143,7 @@ for category, urls in FEEDS.items():
         entries = get_top_entries(parsed.entries, limit=5)
         feed_results.append((journal_name, entries))
 
-# Build and write the latest edition as index.html
 html_output = build_digest_html(feed_results, now)
 write_html_output(html_output, "index.html")
 
-print("✅ Finished generating index.html")
+print("✅ Digest written to index.html")
