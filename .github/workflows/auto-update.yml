@@ -3,46 +3,54 @@ name: Auto Update
 on:
   schedule:
     - cron: '0 * * * *'  # every hour
-  workflow_dispatch:
+  workflow_dispatch:      # manual run allowed
 
 permissions:
-  contents: write
+  contents: write  # Required for git commit/push
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Confirm script presence
-        run: ls -lh briefcaseapp.py
-
-    
-      - name: Checkout repo
+      - name: ✅ Checkout repo
         uses: actions/checkout@v3
         with:
           persist-credentials: true
 
-      - name: Set up Git user
+      - name: 🛠 Set up Git user
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-        - name: Run CompactPaper script
+      - name: 🔍 Confirm Python script is present
+        run: |
+          echo "Files in working directory:"
+          ls -lh
+          echo "----"
+          ls -lh briefcaseapp.py || echo "❌ briefcaseapp.py not found!"
+
+      - name: 🚀 Run CompactPaper script
         run: |
           echo "▶ Running briefcaseapp.py..."
-          python briefcaseapp.py
+          python3 briefcaseapp.py
           echo "✅ Script completed."
 
+      - name: 🔎 Preview generated HTML
+        run: |
+          echo "Top of index.html:"
+          head -n 20 index.html || echo "❌ index.html not found!"
 
-      - name: Append timestamp
-        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
+      - name: 🕒 Append update timestamp to file
+        run: |
+          echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
 
-      - name: Show diff
+      - name: 🧠 Git status and diff
         run: |
           git status
-          git diff
+          git diff || echo "⚠️ No diff to show"
 
-      - name: Commit and push
+      - name: 📤 Commit and push changes
         run: |
           git add .
           if git diff-index --quiet HEAD; then
