@@ -1,12 +1,15 @@
 name: Auto Update
 
 on:
+  push:                      # Trigger on commits to main
+    branches:
+      - main
   schedule:
-    - cron: '0 * * * *'  # every hour
-  workflow_dispatch:      # manual run allowed
+    - cron: '0 * * * *'      # Trigger every hour
+  workflow_dispatch:         # Allow manual trigger from GitHub UI
 
 permissions:
-  contents: write  # Required for git commit/push
+  contents: write  # Required for committing/pushing with GITHUB_TOKEN
 
 jobs:
   update:
@@ -23,12 +26,12 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🔍 Confirm Python script is present
+      - name: 🔍 Confirm Python script exists
         run: |
-          echo "Files in working directory:"
+          echo "Listing repo contents..."
           ls -lh
-          echo "----"
-          ls -lh briefcaseapp.py || echo "❌ briefcaseapp.py not found!"
+          echo "---"
+          test -f briefcaseapp.py && echo "✅ briefcaseapp.py found" || echo "❌ briefcaseapp.py missing"
 
       - name: 🚀 Run CompactPaper script
         run: |
@@ -36,21 +39,21 @@ jobs:
           python3 briefcaseapp.py
           echo "✅ Script completed."
 
-      - name: 🔎 Preview generated HTML
+      - name: 🔎 Preview top of generated HTML
         run: |
           echo "Top of index.html:"
-          head -n 20 index.html || echo "❌ index.html not found!"
+          head -n 20 index.html || echo "❌ index.html not found"
 
-      - name: 🕒 Append update timestamp to file
-        run: |
-          echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
+      - name: 🕒 Append update timestamp
+        run: echo "Auto update: $(date +'%Y-%m-%d %H:%M:%S')" >> auto_update.txt
 
-      - name: 🧠 Git status and diff
+      - name: 📋 Git status and diff
         run: |
+          echo "🔧 Git changes:"
           git status
           git diff || echo "⚠️ No diff to show"
 
-      - name: 📤 Commit and push changes
+      - name: 📤 Commit and push
         run: |
           git add .
           if git diff-index --quiet HEAD; then
