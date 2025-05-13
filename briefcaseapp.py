@@ -75,7 +75,9 @@ def build_digest_output_by_journal(feed_results, current_time):
     today = current_time.strftime("%A, %B %d, %Y")
     edition_line = f"{edition_label} of {today}"
 
-    lines = [f"# 📚 BriefCase: The Academic Journal Aggregator\n\n📅 {edition_line}\n\n---\n"]
+        timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    lines = [f"# 📚 BriefCase: The Academic Journal Aggregator\n\n📅 {edition_line} — *{timestamp}*\n\n---\n"]
+
 
     journal_articles = {}
     for (journal_name, entries) in feed_results:
