@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Briefcase Script
         run: |
-          python your_script.py  # Change this if your script has a different name
+          python briefcaseapp.py  # Change this if your script has a different name
 
       - name: Commit and Push Changes
         run: |
